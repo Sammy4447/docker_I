@@ -99,7 +99,14 @@ docker build -t momo-site .
 docker run -d -p 8080:80 --name momo-site momo-site
 ```
 
-Visit `http://localhost:8080` (or `http://<instance-public-ip>:8080` on the EC2 instance — make sure that port is allowed in the security group).
+Visit `http://localhost:8080` (or `http://<instance-public-ip>:8080` on the EC2 instance — make sure that port is allowed in the security group). (port 8080 custom tcp)
+
+## Tag and push to Docker Hub
+
+```bash
+docker tag momo-site sammysunway/momo-site:latest
+docker push sammysunway/momo-site:latest
+```
 
 ## Stop the container
 
@@ -128,4 +135,48 @@ docker stop momo-site && docker rm momo-site
 docker build -t momo-site .
 docker run -d -p 8080:80 --name momo-site momo-site
 ```
+
+## Pull and run from Docker Hub
+
+```bash
+docker pull sammysunway/momo-site:latest
+docker run -d -p 8082:80 --name momo-site sammysunway/momo-site:latest
+```
+
+Visit `http://localhost:8082` in the browser.
+
+## Edit App.jsx and rebuild
+
+Example: change the "small guide" line in `src/App.jsx`.
+
+```bash
+cd src
+nano App.jsx
+```
+
+Find this line (around line 48):
+
+```jsx
+A small guide to momo: the kinds you'll find on the street, the
+```
+
+Edit the text as needed, then save and exit `nano`:
+
+- `Ctrl + O` then `Enter` — writes (saves) the file
+- `Ctrl + X` — exits the editor
+
+Go back to the project root folder:
+
+```bash
+cd ..
+```
+
+Rebuild and restart the container so the change shows up (edits to source files aren't picked up by an already-running container — the image has to be rebuilt):
+
+```bash
+docker stop momo-site && docker rm momo-site
+docker build -t momo-site .
+docker run -d -p 8080:80 --name momo-site momo-site
+```
+
 # docker_I
