@@ -93,19 +93,29 @@ The site (Vite + React) is built into a static bundle and served with nginx, usi
 docker build -t momo-site .
 ```
 
+- `docker build` — builds an image from the `Dockerfile`
+- `-t momo-site` — tags (names) the image `momo-site`, so it can be referenced later (e.g. in `docker run`) instead of using its long image ID
+- `.` — the build context: the current folder, sent to Docker so it can find the `Dockerfile` and copy the source files it needs
+
 ## Run the container
 
 ```bash
 docker run -d -p 8080:80 --name momo-site momo-site
 ```
 
+- `docker run` — creates and starts a new container from an image
+- `-d` — detached mode, runs the container in the background so the terminal stays free
+- `-p 8080:80` — port mapping: `<host-port>:<container-port>` — maps host port 8080 to the container's port 80 (the port nginx listens on)
+- `--name momo-site` — gives the container a fixed name (`momo-site`) so it's easy to reference in other commands, instead of Docker assigning a random one
+- last `momo-site` — the image to run the container from (the one built with `docker build -t momo-site .`)
+
 Visit `http://localhost:8080` (or `http://<instance-public-ip>:8080` on the EC2 instance — make sure that port is allowed in the security group). (port 8080 custom tcp)
 
 ## Tag and push to Docker Hub
 
 ```bash
-docker tag momo-site sammysunway/momo-site:latest
-docker push sammysunway/momo-site:latest
+docker tag momo-site <your-dockerhub-username>/<your-image-name>:latest
+docker push <your-dockerhub-username>/<your-image-name>:latest
 ```
 
 ## Stop the container
@@ -139,8 +149,8 @@ docker run -d -p 8080:80 --name momo-site momo-site
 ## Pull and run from Docker Hub
 
 ```bash
-docker pull sammysunway/momo-site:latest
-docker run -d -p 8082:80 --name momo-site sammysunway/momo-site:latest
+docker pull <your-dockerhub-username>/<your-image-name>:latest
+docker run -d -p 8082:80 --name momo-site <your-dockerhub-username>/<your-image-name>:latest
 ```
 
 Visit `http://localhost:8082` in the browser.
