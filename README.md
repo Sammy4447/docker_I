@@ -114,9 +114,17 @@ Visit `http://localhost:8080` (or `http://<instance-public-ip>:8080` on the EC2 
 ## Tag and push to Docker Hub
 
 ```bash
+docker login
+```
+
+Log in with your Docker Hub username and password (or access token) — required before pushing any image.
+
+```bash
 docker tag momo-site <your-dockerhub-username>/<your-image-name>:latest
 docker push <your-dockerhub-username>/<your-image-name>:latest
 ```
+
+After pushing, log in to [hub.docker.com](https://hub.docker.com) in the browser to see the image listed under your repositories.
 
 ## Stop the container
 
