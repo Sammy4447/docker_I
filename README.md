@@ -197,4 +197,24 @@ docker build -t momo-site .
 docker run -d -p 8080:80 --name momo-site momo-site
 ```
 
+## Multi-container deployment
+
+The same image can be run as multiple containers at once — useful for testing different versions side by side, or running the app on more than one port. Each container needs its own `--name` and its own host port (two containers can't bind to the same host port).
+
+```bash
+docker run -d -p 8080:80 --name momo-site-1 momo-site
+docker run -d -p 8081:80 --name momo-site-2 momo-site
+```
+
+- `momo-site-1` → `http://localhost:8080`
+- `momo-site-2` → `http://localhost:8081`
+
+Both containers are independent — stopping or removing one doesn't affect the other:
+
+```bash
+docker ps                          # see all running containers
+docker stop momo-site-1 momo-site-2
+docker rm momo-site-1 momo-site-2
+```
+
 # docker_I
