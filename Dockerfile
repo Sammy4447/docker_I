@@ -25,9 +25,6 @@ FROM nginx:1.27-alpine AS serve
 COPY --from=build /app/dist /usr/share/nginx/html
 # copy only the built static files from the "build" stage into nginx's default web root
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-# replace nginx's default config with ours (handles SPA routing so refreshing a route doesn't 404)
-
 EXPOSE 80
 # documents that the container listens on port 80 (doesn't actually publish it — that's done with "docker run -p")
 
