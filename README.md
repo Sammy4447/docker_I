@@ -1,220 +1,44 @@
-# EC2 Instance Setup
+# docker_I — Dockerizing momo-site
 
-Steps to create the EC2 instance for this project.
+A small **Vite + React** site packaged with Docker and deployed on an **AWS EC2** instance.
 
-1. Go to **AWS Console → EC2 → Launch Instance**.
-2. **Name**: give the instance a name (e.g. `docker-server`).
-3. **Application and OS Image (AMI)**: select **Ubuntu** (latest LTS).
-4. **Instance type**: select **t3.small**.
-5. **Key pair**: create a new key pair (or select an existing one) and download the `.pem` file — needed for SSH access.
-6. **Network settings**: allow SSH (port 22), and HTTP/HTTPS if needed.
-7. **Configure storage**: set to **20 GiB**.
-8. Click **Launch instance**.
+The app is built into static files and served with **nginx**, using a multi-stage `Dockerfile`.
 
-## Connect to the instance
+## Guides
 
-```bash
-chmod 400 your-key.pem
-ssh -i your-key.pem ubuntu@<instance-public-ip>
+Follow these in order:
+
+| # | Guide | What you'll do |
+|---|-------|----------------|
+| 1 | [EC2 Setup](docs/01-ec2-setup.md) | Launch an Ubuntu server on AWS and connect with SSH |
+| 2 | [Install Docker](docs/02-install-docker.md) | Install Docker, run it without `sudo`, test with `hello-world` |
+| 3 | [Build and Run](docs/03-build-and-run.md) | Build the `momo-site` image and run it as a container |
+| 4 | [Docker Hub](docs/04-docker-hub.md) | Push your image to Docker Hub and pull it back |
+| 5 | [Edit and Rebuild](docs/05-edit-and-rebuild.md) | Change the code and see it in the running site |
+| 6 | [Multi-container](docs/06-multi-container.md) | Run several containers from one image |
+| 7 | [Troubleshooting](docs/07-troubleshooting.md) | Fix common errors (port in use, name conflict) |
+
+## Project structure
+
+```
+docker_I/
+├── Dockerfile        # multi-stage build: Node builds the app, nginx serves it
+├── .dockerignore     # files Docker should not copy into the image
+├── package.json      # app dependencies and scripts
+├── vite.config.js    # Vite settings
+├── index.html        # page entry point
+├── public/           # static assets (images, etc.)
+├── src/              # React source code (App.jsx lives here)
+└── docs/             # step-by-step guides
 ```
 
-## Install Docker
+## Quick start
+
+If Docker is already installed:
 
 ```bash
-sudo apt update
-sudo apt install docker.io
-```
-
-Check available commands:
-
-```bash
-docker
-```
-
-## Check Docker status
-
-```bash
-systemctl status docker
-```
-
-Shows whether the Docker service is running (active) or stopped.
-
-```bash
-sudo docker ps
-```
-
-Lists all currently running containers.
-
-## Run Docker without sudo
-
-```bash
-sudo usermod -aG docker ubuntu
-newgrp docker
-```
-
-Adds the `ubuntu` user to the `docker` group so you don't need `sudo` for every docker command. `newgrp docker` applies the group change to the current session immediately (otherwise you'd need to log out and back in).
-
-- `-a` = append → keep existing groups as they are, just add the `docker` group.
-- `-G` = groups → add the user to the specified group(s).
-
-After this, you can drop `sudo`:
-
-```bash
-docker ps
-```
-
-```bash
-docker images
-```
-
-Lists all Docker images downloaded/available on the machine.
-
-## Test Docker installation
-
-```bash
-docker pull hello-world
-```
-
-Downloads the `hello-world` image from Docker Hub to the local machine.
-
-```bash
-docker run hello-world
-```
-
-Creates and runs a container from the `hello-world` image. It prints a confirmation message and exits — confirming that Docker is installed and working correctly.
-
-# Dockerize and run momo-site
-
-The site (Vite + React) is built into a static bundle and served with nginx, using a multi-stage `Dockerfile` at the repo root. All app source files, `Dockerfile`, `nginx.conf` and `.dockerignore` live directly in this folder — there is no separate `momo-site/` subfolder.
-
-## Build the image
-
-```bash
-docker build -t momo-site .
-```
-
-- `docker build` — builds an image from the `Dockerfile`
-- `-t momo-site` — tags (names) the image `momo-site`, so it can be referenced later (e.g. in `docker run`) instead of using its long image ID
-- `.` — the build context: the current folder, sent to Docker so it can find the `Dockerfile` and copy the source files it needs
-
-## Run the container
-
-```bash
-docker run -d -p 8080:80 --name momo-site momo-site
-```
-
-- `docker run` — creates and starts a new container from an image
-- `-d` — detached mode, runs the container in the background so the terminal stays free
-- `-p 8080:80` — port mapping: `<host-port>:<container-port>` — maps host port 8080 to the container's port 80 (the port nginx listens on)
-- `--name momo-site` — gives the container a fixed name (`momo-site`) so it's easy to reference in other commands, instead of Docker assigning a random one
-- last `momo-site` — the image to run the container from (the one built with `docker build -t momo-site .`)
-
-Visit `http://localhost:8080` (or `http://<instance-public-ip>:8080` on the EC2 instance — make sure that port is allowed in the security group). (port 8080 custom tcp)
-
-## Tag and push to Docker Hub
-
-```bash
-docker login
-```
-
-Log in with your Docker Hub username and password (or access token) — required before pushing any image.
-
-```bash
-docker tag momo-site <your-dockerhub-username>/<your-image-name>:latest
-docker push <your-dockerhub-username>/<your-image-name>:latest
-```
-
-After pushing, log in to [hub.docker.com](https://hub.docker.com) in the browser to see the image listed under your repositories.
-
-## Stop the container
-
-```bash
-docker stop momo-site
-```
-
-```bash
-docker ps       # running containers only — momo-site should no longer appear
-docker ps -a    # all containers, including stopped — momo-site still shows here
-```
-
-## Useful commands
-
-```bash
-docker ps                 # check the container is running
-docker logs momo-site     # view nginx/container logs
-docker stop momo-site     # stop the container
-docker rm momo-site       # remove the stopped container
-```
-
-## Rebuild after code changes
-
-```bash
-docker stop momo-site && docker rm momo-site
 docker build -t momo-site .
 docker run -d -p 8080:80 --name momo-site momo-site
 ```
 
-## Pull and run from Docker Hub
-
-```bash
-docker pull <your-dockerhub-username>/<your-image-name>:latest
-docker run -d -p 8082:80 --name momo-site <your-dockerhub-username>/<your-image-name>:latest
-```
-
-Visit `http://localhost:8082` in the browser.
-
-## Edit App.jsx and rebuild
-
-Example: change the "small guide" line in `src/App.jsx`.
-
-```bash
-cd src
-nano App.jsx
-```
-
-Find this line (around line 48):
-
-```jsx
-A small guide to momo: the kinds you'll find on the street, the
-```
-
-Edit the text as needed, then save and exit `nano`:
-
-- `Ctrl + O` then `Enter` — writes (saves) the file
-- `Ctrl + X` — exits the editor
-
-Go back to the project root folder:
-
-```bash
-cd ..
-```
-
-Rebuild and restart the container so the change shows up (edits to source files aren't picked up by an already-running container — the image has to be rebuilt):
-
-```bash
-docker stop momo-site && docker rm momo-site
-docker build -t momo-site .
-docker run -d -p 8080:80 --name momo-site momo-site
-```
-
-## Multi-container deployment
-
-The same image can be run as multiple containers at once — useful for testing different versions side by side, or running the app on more than one port. Each container needs its own `--name` and its own host port (two containers can't bind to the same host port).
-
-```bash
-docker run -d -p 8080:80 --name momo-site-1 momo-site
-docker run -d -p 8081:80 --name momo-site-2 momo-site
-```
-
-- `momo-site-1` → `http://localhost:8080`
-- `momo-site-2` → `http://localhost:8081`
-
-Both containers are independent — stopping or removing one doesn't affect the other:
-
-```bash
-docker ps                          # see all running containers
-docker stop momo-site-1 momo-site-2
-docker rm momo-site-1 momo-site-2
-```
-
-# docker_I
+Then open <http://localhost:8080>.
