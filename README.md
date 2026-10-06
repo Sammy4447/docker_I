@@ -12,7 +12,7 @@ Follow these in order:
 |---|-------|----------------|
 | 1 | [EC2 Setup](docs/01-ec2-setup.md) | Launch an Ubuntu server on AWS and connect with SSH |
 | 2 | [Install Docker](docs/02-install-docker.md) | Install Docker, run it without `sudo`, test with `hello-world` |
-| 3 | [Build and Run](docs/03-build-and-run.md) | Build the `momo-site` image and run it as a container |
+| 3 | [Build and Run](docs/03-build-and-run.md) | Clone the repo, build the `momo-site` image and run it as a container |
 | 4 | [Docker Hub](docs/04-docker-hub.md) | Push your image to Docker Hub and pull it back |
 | 5 | [Edit and Rebuild](docs/05-edit-and-rebuild.md) | Change the code and see it in the running site |
 | 6 | [Multi-container](docs/06-multi-container.md) | Run several containers from one image |

@@ -7,6 +7,29 @@ The `Dockerfile` has two stages:
 
 The final image contains only nginx and the built files. Node, `node_modules` and the source code are left behind, which keeps the image small.
 
+## Get the code
+
+Check that `git` is installed (it comes preinstalled on Ubuntu EC2 instances):
+
+```bash
+git --version
+```
+
+If it prints a version (e.g. `git version 2.43.0`), skip to cloning. If you get `command not found`, install it:
+
+```bash
+sudo apt install -y git
+```
+
+Clone the repo and move into it:
+
+```bash
+git clone https://github.com/Sammy4447/docker_I.git
+cd docker_I
+```
+
+> **Note:** Use the HTTPS URL, not `git@github.com:...`. The SSH URL needs an SSH key set up on the instance. If the repo is private, GitHub will ask for your username and a **personal access token** (not your password).
+
 All commands below are run from the project root (the folder with the `Dockerfile`).
 
 ## Build the image
