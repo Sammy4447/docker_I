@@ -60,6 +60,16 @@ docker run -d -p 8080:80 --name momo-site momo-site
 
 **Fix:** in **EC2 → Security Groups → Inbound rules**, add a **Custom TCP** rule for the port you mapped (e.g. `8080`), source `0.0.0.0/0`.
 
+Every host port needs its own rule, so allowing `8080` doesn't open `8082`. If you run several containers, add one rule for a range instead (the easiest option):
+
+| Field | Value |
+|-------|-------|
+| **Type** | Custom TCP |
+| **Port range** | `8080-8090` |
+| **Source** | `0.0.0.0/0` |
+
+Any container on host ports `8080` to `8090` is then reachable at `http://<instance-public-ip>:<port>`, with no more security group changes.
+
 ---
 
 **Previous:** [← 6. Multi-container](06-multi-container.md) · [Back to README](../README.md)
